@@ -1,0 +1,19 @@
+[
+  { "id": "central_ac", "name": "Central AC", "watts": 3500, "hoursPerMonth": 180 },
+  { "id": "window_ac", "name": "Window AC Unit", "watts": 1200, "hoursPerMonth": 180 },
+  { "id": "space_heater", "name": "Space Heater", "watts": 1500, "hoursPerMonth": 90 },
+  { "id": "electric_furnace", "name": "Electric Furnace", "watts": 18000, "hoursPerMonth": 120 },
+  { "id": "heat_pump", "name": "Heat Pump", "watts": 4500, "hoursPerMonth": 150 },
+  { "id": "water_heater", "name": "Water Heater", "watts": 4500, "hoursPerMonth": 76 },
+  { "id": "refrigerator", "name": "Refrigerator", "watts": 400, "hoursPerMonth": 260 },
+  { "id": "freezer", "name": "Freezer", "watts": 200, "hoursPerMonth": 375 },
+  { "id": "clothes_dryer", "name": "Clothes Dryer", "watts": 5000, "hoursPerMonth": 25 },
+  { "id": "washing_machine", "name": "Washing Machine", "watts": 500, "hoursPerMonth": 30 },
+  { "id": "dishwasher", "name": "Dishwasher", "watts": 1800, "hoursPerMonth": 30 },
+  { "id": "electric_range", "name": "Electric Range/Oven", "watts": 12200, "hoursPerMonth": 15 },
+  { "id": "pool_pump", "name": "Pool Pump", "watts": 600, "hoursPerMonth": 730 },
+  { "id": "hot_tub", "name": "Hot Tub", "watts": 1500, "hoursPerMonth": 720 },
+  { "id": "ev_charger", "name": "EV Charger", "watts": 7200, "hoursPerMonth": 120 },
+  { "id": "dehumidifier", "name": "Dehumidifier", "watts": 300, "hoursPerMonth": 360 },
+  { "id": "always_on", "name": "Always-On Devices (TVs, consoles, chargers)", "watts": 100, "hoursPerMonth": 720 }
+]
