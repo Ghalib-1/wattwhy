@@ -27,7 +27,10 @@ export const metadata: Metadata = {
     "energy cost breakdown",
     "electricity bill analysis",
   ],
-  metadataBase: new URL("https://wattwhy.com"),
+  metadataBase: new URL("https://wattwhy.vercel.app"),
+  verification: {
+    google: "0m-tWjrelCQ4SvMCKCcGLofMGXzyjEx4vVznB2syKgc",
+  },
   openGraph: {
     title: "Why Is My Electric Bill So High?",
     description:
@@ -47,7 +50,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"
