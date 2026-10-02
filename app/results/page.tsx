@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import VerdictCard from '@/components/VerdictCard';
 import RateWatch from '@/components/RateWatch';
+import BreakdownChart from '@/components/BreakdownChart';
+import WhatIfSlider from '@/components/WhatIfSlider';
+import LeadForm from '@/components/LeadForm';
 
 export default function ResultsPage() {
   const [data, setData] = useState<any>(null);
@@ -27,6 +30,10 @@ export default function ResultsPage() {
   }
 
   const d = data.diagnosis;
+  const hvac = d.rankedCulprits.find((c: any) =>
+    c.name.toLowerCase().includes('ac')
+  );
+  const hvacCost = hvac?.estimatedCost || 0;
 
   return (
     <main className="max-w-3xl mx-auto p-6 pb-24">
@@ -34,6 +41,23 @@ export default function ResultsPage() {
 
       <RateWatch state={data.state || 'CA'} />
       <VerdictCard diagnosis={d} state={data.state || 'CA'} />
+
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">
+          Where your money went
+        </h2>
+        <BreakdownChart
+          rateImpact={d.rateImpactDollars}
+          usageImpact={d.usageImpactDollars}
+        />
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">
+          What if I changed something?
+        </h2>
+        <WhatIfSlider baseSpike={d.dollarSpike} hvacCost={hvacCost} />
+      </section>
 
       <section className="mt-10">
         <h2 className="text-xl font-semibold text-slate-900 mb-4">
@@ -59,6 +83,18 @@ export default function ResultsPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="mt-10 bg-slate-50 rounded-2xl p-6">
+        <h2 className="text-xl font-semibold text-slate-900 mb-2">
+          What you can do
+        </h2>
+        <p className="text-slate-600 mb-6">
+          {d.verdict === 'rate-hike'
+            ? "You can't control your utility, but you can reduce how much their rate hike costs you."
+            : 'Small changes compound. Start with your biggest culprit above.'}
+        </p>
+        <LeadForm state={data.state || 'CA'} verdict={d.verdict} />
       </section>
 
       <div className="mt-10">
