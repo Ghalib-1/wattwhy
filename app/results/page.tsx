@@ -1,11 +1,30 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import VerdictCard from '@/components/VerdictCard';
 import RateWatch from '@/components/RateWatch';
 import BreakdownChart from '@/components/BreakdownChart';
 import WhatIfSlider from '@/components/WhatIfSlider';
 import LeadForm from '@/components/LeadForm';
+
+const STATE_NAMES: Record<string, string> = {
+  CA: 'California',
+  TX: 'Texas',
+  PA: 'Pennsylvania',
+  OH: 'Ohio',
+  NY: 'New York',
+  FL: 'Florida',
+};
+
+const STATE_SLUGS: Record<string, string> = {
+  CA: 'california',
+  TX: 'texas',
+  PA: 'pennsylvania',
+  OH: 'ohio',
+  NY: 'new-york',
+  FL: 'florida',
+};
 
 export default function ResultsPage() {
   const [data, setData] = useState<any>(null);
@@ -35,12 +54,17 @@ export default function ResultsPage() {
   );
   const hvacCost = hvac?.estimatedCost || 0;
 
+  const stateCode = data.state || 'CA';
+  const stateName = STATE_NAMES[stateCode] || stateCode;
+  const stateSlug = STATE_SLUGS[stateCode] || null;
+  const topCulprit = d.rankedCulprits?.[0];
+
   return (
     <main className="max-w-3xl mx-auto p-6 pb-24">
       <h1 className="text-3xl font-bold text-slate-900 mb-6">Your diagnosis</h1>
 
-      <RateWatch state={data.state || 'CA'} />
-      <VerdictCard diagnosis={d} state={data.state || 'CA'} />
+      <RateWatch state={stateCode} />
+      <VerdictCard diagnosis={d} state={stateCode} />
 
       <section className="mt-10">
         <h2 className="text-xl font-semibold text-slate-900 mb-4">
@@ -52,7 +76,7 @@ export default function ResultsPage() {
         />
       </section>
 
-      <section className="mt-10">
+      <section className="mt-10 scroll-mt-8" id="whatif">
         <h2 className="text-xl font-semibold text-slate-900 mb-4">
           What if I changed something?
         </h2>
@@ -94,7 +118,66 @@ export default function ResultsPage() {
             ? "You can't control your utility, but you can reduce how much their rate hike costs you."
             : 'Small changes compound. Start with your biggest culprit above.'}
         </p>
-        <LeadForm state={data.state || 'CA'} verdict={d.verdict} />
+        <LeadForm state={stateCode} verdict={d.verdict} />
+      </section>
+
+      {/* NEXT STEPS */}
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">
+          What to do next
+        </h2>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {stateSlug && (
+            <Link
+              href={`/${stateSlug}`}
+              className="block bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-md transition"
+            >
+              <div className="text-2xl mb-2">📍</div>
+              <h3 className="font-semibold text-slate-900 mb-1">
+                {stateName} rates
+              </h3>
+              <p className="text-sm text-slate-600 mb-3">
+                See average rates, top utilities, and why {stateName} bills look
+                the way they do.
+              </p>
+              <span className="text-sm text-blue-600 font-medium">
+                View state page →
+              </span>
+            </Link>
+          )}
+
+          <a
+            href="#whatif"
+            className="block bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-md transition"
+          >
+            <div className="text-2xl mb-2">🎛️</div>
+            <h3 className="font-semibold text-slate-900 mb-1">
+              Try the simulator
+            </h3>
+            <p className="text-sm text-slate-600 mb-3">
+              Adjust your thermostat and see how much you&apos;d save per month.
+            </p>
+            <span className="text-sm text-blue-600 font-medium">
+              Jump to simulator →
+            </span>
+          </a>
+
+          {topCulprit && (
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 opacity-70">
+              <div className="text-2xl mb-2">🔌</div>
+              <h3 className="font-semibold text-slate-900 mb-1">
+                {topCulprit.name} cost
+              </h3>
+              <p className="text-sm text-slate-600 mb-3">
+                A deep dive on your biggest suspected culprit — how much it
+                costs per hour, per month, per year.
+              </p>
+              <span className="text-xs text-slate-400 font-medium uppercase tracking-wide">
+                Coming soon
+              </span>
+            </div>
+          )}
+        </div>
       </section>
 
       <div className="mt-10">
