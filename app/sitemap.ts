@@ -10,5 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/pennsylvania`, lastModified: now, priority: 0.8, changeFrequency: 'monthly' },
     { url: `${base}/ohio`, lastModified: now, priority: 0.8, changeFrequency: 'monthly' },
     { url: `${base}/vampire-power`, lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
+    { url: `${base}/air-conditioning`, lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
+    { url: `${base}/water-heater`, lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
   ];
 }

@@ -253,7 +253,7 @@ export default function Home() {
           <p className="text-slate-600">We&apos;re building these next.</p>
         </div>
 
-       <div className="grid sm:grid-cols-3 gap-4">
+       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
   <Link
     href="/vampire-power"
     className="block bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-md transition"
@@ -265,27 +265,27 @@ export default function Home() {
     <span className="text-sm text-blue-600 font-medium">Read guide →</span>
   </Link>
 
-  {[
-    {
-      title: 'Usage Calculator',
-      desc: 'Estimate your bill from your appliances and kWh.',
-    },
-    {
-      title: 'Bill Comparison',
-      desc: 'Compare this month vs. last month side by side.',
-    },
-  ].map((f) => (
-    <div
-      key={f.title}
-      className="bg-white border border-slate-200 rounded-2xl p-5 opacity-70"
-    >
-      <h3 className="font-semibold text-slate-900 mb-2">{f.title}</h3>
-      <p className="text-sm text-slate-600 mb-4">{f.desc}</p>
-      <span className="text-xs text-slate-400 font-medium uppercase tracking-wide">
-        Coming soon
-      </span>
-    </div>
-  ))}
+  <Link
+    href="/air-conditioning"
+    className="block bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-md transition"
+  >
+    <h3 className="font-semibold text-slate-900 mb-2">AC Cost Guide</h3>
+    <p className="text-sm text-slate-600 mb-4">
+      How much your air conditioning costs per month — and how to cut it.
+    </p>
+    <span className="text-sm text-blue-600 font-medium">Read guide →</span>
+  </Link>
+
+  <Link
+    href="/water-heater"
+    className="block bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-md transition"
+  >
+    <h3 className="font-semibold text-slate-900 mb-2">Water Heater Cost</h3>
+    <p className="text-sm text-slate-600 mb-4">
+      What your water heater costs monthly, and how to save without losing hot showers.
+    </p>
+    <span className="text-sm text-blue-600 font-medium">Read guide →</span>
+  </Link>
 </div>
       </section>
 
