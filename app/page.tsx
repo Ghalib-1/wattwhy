@@ -260,7 +260,7 @@ export default function Home() {
   >
     <h3 className="font-semibold text-slate-900 mb-2">Vampire Power Guide</h3>
     <p className="text-sm text-slate-600 mb-4">
-      What uses electricity when nothing is on — and how much it costs you.
+      What uses electricity when nothing is on.
     </p>
     <span className="text-sm text-blue-600 font-medium">Read guide →</span>
   </Link>
@@ -271,7 +271,7 @@ export default function Home() {
   >
     <h3 className="font-semibold text-slate-900 mb-2">AC Cost Guide</h3>
     <p className="text-sm text-slate-600 mb-4">
-      How much your air conditioning costs per month — and how to cut it.
+      What your air conditioning costs per month.
     </p>
     <span className="text-sm text-blue-600 font-medium">Read guide →</span>
   </Link>
@@ -282,7 +282,29 @@ export default function Home() {
   >
     <h3 className="font-semibold text-slate-900 mb-2">Water Heater Cost</h3>
     <p className="text-sm text-slate-600 mb-4">
-      What your water heater costs monthly, and how to save without losing hot showers.
+      What your water heater costs monthly.
+    </p>
+    <span className="text-sm text-blue-600 font-medium">Read guide →</span>
+  </Link>
+
+  <Link
+    href="/heating"
+    className="block bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-md transition"
+  >
+    <h3 className="font-semibold text-slate-900 mb-2">Heating Cost Guide</h3>
+    <p className="text-sm text-slate-600 mb-4">
+      Furnace, space heater, heat pump — what it all costs.
+    </p>
+    <span className="text-sm text-blue-600 font-medium">Read guide →</span>
+  </Link>
+
+  <Link
+    href="/air-leaks"
+    className="block bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-md transition"
+  >
+    <h3 className="font-semibold text-slate-900 mb-2">Air Leaks Guide</h3>
+    <p className="text-sm text-slate-600 mb-4">
+      How much leaks cost — and how to fix them for cheap.
     </p>
     <span className="text-sm text-blue-600 font-medium">Read guide →</span>
   </Link>

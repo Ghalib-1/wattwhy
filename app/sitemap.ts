@@ -12,5 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/vampire-power`, lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
     { url: `${base}/air-conditioning`, lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
     { url: `${base}/water-heater`, lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
+    { url: `${base}/heating`, lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
+    { url: `${base}/air-leaks`, lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
   ];
 }
