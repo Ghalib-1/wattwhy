@@ -2,15 +2,36 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import rates from '@/data/rates.json';
+import rateHistory from '@/data/rates-history.json';
+
+const STATE_INFO: Record<
+  string,
+  { name: string; slug: string; topCities: string }
+> = {
+  CA: { name: 'California', slug: 'california', topCities: 'LA, SF, San Diego' },
+  TX: { name: 'Texas', slug: 'texas', topCities: 'Houston, Dallas, Austin' },
+  PA: {
+    name: 'Pennsylvania',
+    slug: 'pennsylvania',
+    topCities: 'Philadelphia, Pittsburgh',
+  },
+  OH: { name: 'Ohio', slug: 'ohio', topCities: 'Columbus, Cleveland' },
+};
 
 export default function Home() {
   const router = useRouter();
-  const [mode, setMode] = useState<'upload' | 'manual'>('upload');
+  const [mode, setMode] = useState<'upload' | 'manual'>('manual');
   const [total, setTotal] = useState('');
   const [kwh, setKwh] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const canContinue = total && kwh && !loading;
 
   const handleContinue = () => {
     if (!total || !kwh) return;
+    setLoading(true);
     localStorage.setItem(
       'pending-bill',
       JSON.stringify({ total: parseFloat(total), kwh: parseFloat(kwh) })
@@ -18,15 +39,27 @@ export default function Home() {
     router.push('/diagnose');
   };
 
+  const states = Object.entries(STATE_INFO).map(([code, info]) => {
+    const rate = (rates as Record<string, number>)[code];
+    const history = (rateHistory as any)[code] || [];
+    const latest = history[history.length - 1]?.rate || rate;
+    const previous = history[history.length - 2]?.rate || latest;
+    const delta = latest - previous;
+    return { code, ...info, rate, delta };
+  });
+
   return (
     <main className="min-h-screen bg-white">
+      {/* HERO */}
       <section className="max-w-3xl mx-auto px-6 pt-16 pb-12 text-center">
         <div className="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-medium rounded-full mb-6">
           Updated for October 2026 rates
         </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
-          Why is my electric bill<br />so high?
+          Why is my electric bill
+          <br />
+          so high?
         </h1>
 
         <p className="mt-6 text-lg text-slate-600 max-w-xl mx-auto">
@@ -41,6 +74,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* THE TOOL */}
       <section className="max-w-2xl mx-auto px-6 pb-16">
         <div className="bg-slate-50 rounded-3xl p-6 md:p-8">
           <div className="flex gap-2 mb-6">
@@ -94,11 +128,22 @@ export default function Home() {
               </div>
               <button
                 onClick={handleContinue}
-                disabled={!total || !kwh}
-                className="w-full py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-700 disabled:opacity-40"
+                disabled={!canContinue}
+                className={`w-full py-3 rounded-xl font-medium transition-all ${
+                  !total || !kwh
+                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                    : loading
+                    ? 'bg-slate-700 text-white'
+                    : 'bg-slate-900 text-white hover:bg-slate-700 active:scale-[0.98]'
+                }`}
               >
-                Continue →
+                {loading ? 'Loading…' : 'Continue →'}
               </button>
+              {(!total || !kwh) && (
+                <p className="text-xs text-slate-400 text-center">
+                  Enter both the bill amount and usage to continue
+                </p>
+              )}
             </div>
           ) : (
             <div className="text-center py-12 text-slate-500">
@@ -115,6 +160,123 @@ export default function Home() {
         </p>
       </section>
 
+      {/* STATE GRID */}
+      <section className="max-w-4xl mx-auto px-6 pb-16">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            Find your state
+          </h2>
+          <p className="text-slate-600">
+            State-specific rates, utility info, and bill breakdowns.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {states.map((s) => (
+            <Link
+              key={s.code}
+              href={`/${s.slug}`}
+              className="block bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-md transition"
+            >
+              <div className="flex items-baseline justify-between mb-2">
+                <h3 className="font-semibold text-slate-900">{s.name}</h3>
+                <span className="text-xs text-slate-400">{s.code}</span>
+              </div>
+              <p className="text-2xl font-bold text-slate-900 mb-1">
+                {(s.rate * 100).toFixed(1)}¢
+              </p>
+              <p className="text-xs text-slate-500 mb-3">per kWh average</p>
+              <p className="text-xs text-slate-400 mb-4">{s.topCities}</p>
+              <span className="text-sm text-blue-600 font-medium">
+                Run diagnostic →
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* RATE WATCH */}
+      <section className="max-w-4xl mx-auto px-6 pb-16">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            Live rate changes
+          </h2>
+          <p className="text-slate-600">
+            Tracking the latest electricity rate updates across our states.
+          </p>
+        </div>
+
+        <div className="bg-slate-50 rounded-2xl divide-y divide-slate-200">
+          {states.map((s) => (
+            <div
+              key={s.code}
+              className="flex items-center justify-between px-6 py-4"
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    s.delta > 0 ? 'bg-red-500' : 'bg-green-500'
+                  }`}
+                />
+                <span className="text-slate-900 font-medium">{s.name}</span>
+              </div>
+              <div className="text-right">
+                <span
+                  className={`text-sm font-medium ${
+                    s.delta > 0 ? 'text-red-600' : 'text-green-600'
+                  }`}
+                >
+                  {s.delta > 0 ? '↑' : '↓'}{' '}
+                  {Math.abs(s.delta * 100).toFixed(2)}¢
+                </span>
+                <span className="text-xs text-slate-400 ml-2">
+                  latest period
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* COMING SOON */}
+      <section className="max-w-4xl mx-auto px-6 pb-16">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            More tools coming
+          </h2>
+          <p className="text-slate-600">We&apos;re building these next.</p>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-4">
+          {[
+            {
+              title: 'Usage Calculator',
+              desc: 'Estimate your bill from your appliances and kWh.',
+            },
+            {
+              title: 'Bill Comparison',
+              desc: 'Compare this month vs. last month side by side.',
+            },
+            {
+              title: 'State Comparison',
+              desc: 'Moving? See how rates compare across states.',
+            },
+          ].map((f) => (
+            <div
+              key={f.title}
+              className="bg-white border border-slate-200 rounded-2xl p-5 opacity-70"
+            >
+              <h3 className="font-semibold text-slate-900 mb-2">{f.title}</h3>
+              <p className="text-sm text-slate-600 mb-4">{f.desc}</p>
+              <span className="text-xs text-slate-400 font-medium uppercase tracking-wide">
+                Coming soon
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* WHY */}
       <section className="max-w-3xl mx-auto px-6 pb-20">
         <div className="grid md:grid-cols-3 gap-6">
           {[
@@ -139,8 +301,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ */}
       <section className="max-w-2xl mx-auto px-6 pb-24">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Common questions</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">
+          Common questions
+        </h2>
         <div className="space-y-4">
           {[
             {
@@ -170,7 +335,9 @@ export default function Home() {
                   ▾
                 </span>
               </summary>
-              <p className="mt-3 text-sm text-slate-600 leading-relaxed">{f.a}</p>
+              <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                {f.a}
+              </p>
             </details>
           ))}
         </div>
@@ -178,7 +345,9 @@ export default function Home() {
 
       <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400">
         <p>Rates last updated October 2026 · Sources: EIA, state PUCs</p>
-        <p className="mt-1">Not affiliated with any utility. Estimates only.</p>
+        <p className="mt-1">
+          Not affiliated with any utility. Estimates only.
+        </p>
       </footer>
     </main>
   );
