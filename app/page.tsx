@@ -27,16 +27,21 @@ export default function Home() {
   const [kwh, setKwh] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const canContinue = total && kwh && !loading;
+  const canContinue = !!total && !!kwh;
 
   const handleContinue = () => {
     if (!total || !kwh) return;
     setLoading(true);
+
     localStorage.setItem(
       'pending-bill',
       JSON.stringify({ total: parseFloat(total), kwh: parseFloat(kwh) })
     );
-    router.push('/diagnose');
+
+    // Small delay so the "Loading…" state actually renders before navigation
+    setTimeout(() => {
+      router.push('/diagnose');
+    }, 150);
   };
 
   const states = Object.entries(STATE_INFO).map(([code, info]) => {
@@ -127,19 +132,20 @@ export default function Home() {
                 />
               </div>
               <button
+                type="button"
                 onClick={handleContinue}
-                disabled={!canContinue}
+                disabled={!canContinue || loading}
                 className={`w-full py-3 rounded-xl font-medium transition-all ${
-                  !total || !kwh
+                  !canContinue
                     ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
                     : loading
-                    ? 'bg-slate-700 text-white'
-                    : 'bg-slate-900 text-white hover:bg-slate-700 active:scale-[0.98]'
+                    ? 'bg-slate-700 text-white cursor-wait'
+                    : 'bg-slate-900 text-white hover:bg-slate-700 active:scale-[0.98] cursor-pointer'
                 }`}
               >
                 {loading ? 'Loading…' : 'Continue →'}
               </button>
-              {(!total || !kwh) && (
+              {!canContinue && (
                 <p className="text-xs text-slate-400 text-center">
                   Enter both the bill amount and usage to continue
                 </p>
@@ -345,9 +351,7 @@ export default function Home() {
 
       <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400">
         <p>Rates last updated October 2026 · Sources: EIA, state PUCs</p>
-        <p className="mt-1">
-          Not affiliated with any utility. Estimates only.
-        </p>
+        <p className="mt-1">Not affiliated with any utility. Estimates only.</p>
       </footer>
     </main>
   );
