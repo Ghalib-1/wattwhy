@@ -8,5 +8,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/california`, lastModified: now, priority: 0.8, changeFrequency: 'monthly' },
     { url: `${base}/texas`, lastModified: now, priority: 0.8, changeFrequency: 'monthly' },
     { url: `${base}/pennsylvania`, lastModified: now, priority: 0.8, changeFrequency: 'monthly' },
+    { url: `${base}/ohio`, lastModified: now, priority: 0.8, changeFrequency: 'monthly' },
   ];
 }
