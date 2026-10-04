@@ -6,7 +6,7 @@ import Link from 'next/link';
 import rates from '@/data/rates.json';
 import rateHistory from '@/data/rates-history.json';
 import appliances from '@/data/appliances.json';
-
+export const dynamic = 'force-dynamic';
 const STATE_INFO: Record<
   string,
   { name: string; slug: string; topCities: string }

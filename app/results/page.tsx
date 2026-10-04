@@ -10,7 +10,7 @@ import RateWatch from '@/components/RateWatch';
 import BreakdownChart from '@/components/BreakdownChart';
 import WhatIfSlider from '@/components/WhatIfSlider';
 import LeadForm from '@/components/LeadForm';
-
+export const dynamic = 'force-dynamic';
 const STATE_NAMES: Record<string, string> = {
   CA: 'California',
   TX: 'Texas',
