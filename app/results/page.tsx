@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { diagnose } from '@/lib/diagnostic';
+import rates from '@/data/rates.json';
 import VerdictCard from '@/components/VerdictCard';
 import RateWatch from '@/components/RateWatch';
 import BreakdownChart from '@/components/BreakdownChart';
@@ -28,13 +30,37 @@ const STATE_SLUGS: Record<string, string> = {
 
 export default function ResultsPage() {
   const [data, setData] = useState<any>(null);
+  const [diagnosis, setDiagnosis] = useState<any>(null);
 
   useEffect(() => {
     const raw = localStorage.getItem('last-diagnosis');
-    if (raw) setData(JSON.parse(raw));
+    if (!raw) return;
+
+    const saved = JSON.parse(raw);
+
+    // Run the diagnosis if it hasn't been run yet
+    if (saved.current && saved.previous && saved.state) {
+      const stateRate = (rates as Record<string, number>)[saved.state];
+      const result = diagnose(
+        { month: 'current', total: saved.current.total, kwh: saved.current.kwh },
+        {
+          month: 'previous',
+          total: saved.previous.total,
+          kwh: saved.previous.kwh,
+        },
+        stateRate,
+        []
+      );
+      setData(saved);
+      setDiagnosis(result);
+    } else if (saved.diagnosis) {
+      // Legacy format
+      setData(saved);
+      setDiagnosis(saved.diagnosis);
+    }
   }, []);
 
-  if (!data) {
+  if (!data || !diagnosis) {
     return (
       <main className="max-w-2xl mx-auto p-6">
         <p className="text-slate-600">
@@ -48,7 +74,7 @@ export default function ResultsPage() {
     );
   }
 
-  const d = data.diagnosis;
+  const d = diagnosis;
   const hvac = d.rankedCulprits.find((c: any) =>
     c.name.toLowerCase().includes('ac')
   );
