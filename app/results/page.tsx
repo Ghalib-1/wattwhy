@@ -46,23 +46,27 @@ export default function ResultsPage() {
         (saved.applianceIds || []).includes(a.id)
       );
 
-      const result = diagnose(
-        {
-          month: 'current',
-          total: saved.current.total,
-          kwh: saved.current.kwh,
-          billingDays: saved.current.billingDays,
-        },
-        {
-          month: 'previous',
-          total: saved.previous.total,
-          kwh: saved.previous.kwh,
-          billingDays: saved.previous.billingDays,
-        },
-        stateRate,
-        chosen,
-        saved.state
-      );
+     const currentMonth = new Date().toLocaleDateString('en-US', {
+  month: 'long',
+});
+
+const result = diagnose(
+  {
+    month: currentMonth,
+    total: saved.current.total,
+    kwh: saved.current.kwh,
+    billingDays: saved.current.billingDays,
+  },
+  {
+    month: 'the comparison period',
+    total: saved.previous.total,
+    kwh: saved.previous.kwh,
+    billingDays: saved.previous.billingDays,
+  },
+  stateRate,
+  chosen,
+  saved.state
+);
       setData(saved);
       setDiagnosis(result);
     } else if (saved.diagnosis) {
