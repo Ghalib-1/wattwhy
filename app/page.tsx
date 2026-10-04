@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import rates from '@/data/rates.json';
 import rateHistory from '@/data/rates-history.json';
+import appliances from '@/data/appliances.json';
 
 const STATE_INFO: Record<
   string,
@@ -27,6 +28,7 @@ export default function Home() {
   const [currentKwh, setCurrentKwh] = useState('');
   const [previousTotal, setPreviousTotal] = useState('');
   const [previousKwh, setPreviousKwh] = useState('');
+  const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   const canSubmit =
@@ -35,6 +37,12 @@ export default function Home() {
     !!previousTotal &&
     !!previousKwh &&
     !loading;
+
+  const toggle = (id: string) => {
+    setSelected((s) =>
+      s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
+    );
+  };
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -50,19 +58,23 @@ export default function Home() {
         total: parseFloat(previousTotal),
         kwh: parseFloat(previousKwh),
       },
+      applianceIds: selected,
       savedAt: new Date().toISOString(),
     };
 
-    // Save to history
+    // Save to bill history
     try {
       const history = JSON.parse(
         localStorage.getItem('bill-history') || '[]'
       );
       history.unshift(payload);
-      localStorage.setItem('bill-history', JSON.stringify(history.slice(0, 12)));
+      localStorage.setItem(
+        'bill-history',
+        JSON.stringify(history.slice(0, 12))
+      );
     } catch {}
 
-    // Save for the results page to read
+    // Save for the results page
     localStorage.setItem('last-diagnosis', JSON.stringify(payload));
 
     setTimeout(() => {
@@ -105,7 +117,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* THE TOOL — TWO-BILL FORM */}
+      {/* THE TOOL */}
       <section className="max-w-2xl mx-auto px-6 pb-16">
         <div className="bg-slate-50 rounded-3xl p-6 md:p-8 space-y-6">
           {/* STATE */}
@@ -192,6 +204,37 @@ export default function Home() {
             </div>
           </div>
 
+          {/* APPLIANCE PICKER */}
+          <div className="border-t border-slate-200 pt-6">
+            <h2 className="font-semibold text-slate-900 mb-1">
+              What&apos;s running in your home?
+            </h2>
+            <p className="text-xs text-slate-500 mb-3">
+              Optional — improves the culprit ranking below.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {(appliances as any[]).map((a) => (
+                <label
+                  key={a.id}
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer text-sm transition ${
+                    selected.includes(a.id)
+                      ? 'bg-blue-50 border-blue-400 text-blue-900'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(a.id)}
+                    onChange={() => toggle(a.id)}
+                    className="accent-blue-600"
+                  />
+                  {a.name}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* SUBMIT */}
           <button
             type="button"
             onClick={handleSubmit}
@@ -304,9 +347,7 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-slate-900 mb-2">
             Guides &amp; tools
           </h2>
-          <p className="text-slate-600">
-            Understand every part of your bill.
-          </p>
+          <p className="text-slate-600">Understand every part of your bill.</p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -329,9 +370,7 @@ export default function Home() {
             href="/air-conditioning"
             className="block bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-md transition"
           >
-            <h3 className="font-semibold text-slate-900 mb-2">
-              AC Cost Guide
-            </h3>
+            <h3 className="font-semibold text-slate-900 mb-2">AC Cost Guide</h3>
             <p className="text-sm text-slate-600 mb-4">
               What your air conditioning costs per month.
             </p>

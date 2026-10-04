@@ -39,7 +39,6 @@ export default function ResultsPage() {
 
     const saved = JSON.parse(raw);
 
-    // Run the diagnosis if it hasn't been run yet
     if (saved.current && saved.previous && saved.state) {
       const stateRate = (rates as Record<string, number>)[saved.state];
 
@@ -48,7 +47,11 @@ export default function ResultsPage() {
       );
 
       const result = diagnose(
-        { month: 'current', total: saved.current.total, kwh: saved.current.kwh },
+        {
+          month: 'current',
+          total: saved.current.total,
+          kwh: saved.current.kwh,
+        },
         {
           month: 'previous',
           total: saved.previous.total,
@@ -60,7 +63,6 @@ export default function ResultsPage() {
       setData(saved);
       setDiagnosis(result);
     } else if (saved.diagnosis) {
-      // Legacy format
       setData(saved);
       setDiagnosis(saved.diagnosis);
     }
@@ -93,7 +95,9 @@ export default function ResultsPage() {
 
   return (
     <main className="max-w-3xl mx-auto p-6 pb-24">
-      <h1 className="text-3xl font-bold text-slate-900 mb-6">Your diagnosis</h1>
+      <h1 className="text-3xl font-bold text-slate-900 mb-6">
+        Your diagnosis
+      </h1>
 
       <RateWatch state={stateCode} />
       <VerdictCard diagnosis={d} state={stateCode} />
@@ -132,7 +136,9 @@ export default function ResultsPage() {
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-slate-700"
-                    style={{ width: Math.min(c.shareOfSpike * 100, 100) + '%' }}
+                    style={{
+                      width: Math.min(c.shareOfSpike * 100, 100) + '%',
+                    }}
                   />
                 </div>
               </div>
@@ -169,8 +175,8 @@ export default function ResultsPage() {
                 {stateName} rates
               </h3>
               <p className="text-sm text-slate-600 mb-3">
-                See average rates, top utilities, and why {stateName} bills look
-                the way they do.
+                See average rates, top utilities, and why {stateName} bills
+                look the way they do.
               </p>
               <span className="text-sm text-blue-600 font-medium">
                 View state page →
@@ -187,7 +193,8 @@ export default function ResultsPage() {
               Try the simulator
             </h3>
             <p className="text-sm text-slate-600 mb-3">
-              Adjust your thermostat and see how much you&apos;d save per month.
+              Adjust your thermostat and see how much you&apos;d save per
+              month.
             </p>
             <span className="text-sm text-blue-600 font-medium">
               Jump to simulator →
@@ -215,6 +222,11 @@ export default function ResultsPage() {
       <div className="mt-10">
         <a
           href="/"
+          onClick={() => {
+            try {
+              localStorage.removeItem('last-diagnosis');
+            } catch {}
+          }}
           className="px-5 py-2.5 border border-slate-300 rounded-xl hover:bg-slate-50 text-slate-700"
         >
           Start over
