@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { diagnose } from '@/lib/diagnostic';
 import rates from '@/data/rates.json';
+import appliances from '@/data/appliances.json';
 import VerdictCard from '@/components/VerdictCard';
 import RateWatch from '@/components/RateWatch';
 import BreakdownChart from '@/components/BreakdownChart';
@@ -41,6 +42,11 @@ export default function ResultsPage() {
     // Run the diagnosis if it hasn't been run yet
     if (saved.current && saved.previous && saved.state) {
       const stateRate = (rates as Record<string, number>)[saved.state];
+
+      const chosen = (appliances as any[]).filter((a: any) =>
+        (saved.applianceIds || []).includes(a.id)
+      );
+
       const result = diagnose(
         { month: 'current', total: saved.current.total, kwh: saved.current.kwh },
         {
@@ -49,7 +55,7 @@ export default function ResultsPage() {
           kwh: saved.previous.kwh,
         },
         stateRate,
-        []
+        chosen
       );
       setData(saved);
       setDiagnosis(result);
