@@ -1,15 +1,14 @@
 'use client';
 
-import { Diagnosis } from '@/lib/diagnostic';
+import type { Diagnosis } from '@/lib/diagnostic';
 
 export default function VerdictCard({
   diagnosis,
-  state,
 }: {
   diagnosis: Diagnosis;
-  state: string;
+  state?: string;
 }) {
-  const { dollarSpike, verdict, rateChangePercent, usageChangePercent, summary } =
+  const { dollarSpike, verdict, rateChangePercent, usageChangePercent } =
     diagnosis;
   const isUp = dollarSpike > 0;
 
@@ -18,6 +17,8 @@ export default function VerdictCard({
       ? 'bg-amber-50 border-amber-300'
       : verdict === 'usage-spike'
       ? 'bg-blue-50 border-blue-300'
+      : verdict === 'days-change'
+      ? 'bg-slate-50 border-slate-300'
       : 'bg-purple-50 border-purple-300';
 
   const label =
@@ -25,6 +26,8 @@ export default function VerdictCard({
       ? '⚡ Rate Hike'
       : verdict === 'usage-spike'
       ? '🔌 Usage Spike'
+      : verdict === 'days-change'
+      ? '📅 Billing Period Change'
       : '🔀 Mixed Cause';
 
   return (
@@ -33,14 +36,18 @@ export default function VerdictCard({
         <span className="text-4xl font-bold text-slate-900">
           {isUp ? '+' : '−'}${Math.abs(dollarSpike).toFixed(2)}
         </span>
-        <span className="text-sm text-slate-500">vs. same month last year</span>
+        <span className="text-sm text-slate-500">
+          vs. same month last year
+        </span>
       </div>
 
       <div className="mt-4 inline-block px-3 py-1 bg-white rounded-full text-sm font-medium text-slate-700">
         {label}
       </div>
 
-      <p className="mt-4 text-slate-700 leading-relaxed">{summary}</p>
+      <p className="mt-4 text-slate-700 leading-relaxed">
+        {diagnosis.summary}
+      </p>
 
       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
         <div>
