@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import rates from '@/data/rates.json';
@@ -26,10 +26,41 @@ export default function Home() {
   const [state, setState] = useState('CA');
   const [currentTotal, setCurrentTotal] = useState('');
   const [currentKwh, setCurrentKwh] = useState('');
+  const [currentDays, setCurrentDays] = useState('');
   const [previousTotal, setPreviousTotal] = useState('');
   const [previousKwh, setPreviousKwh] = useState('');
+  const [previousDays, setPreviousDays] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [welcomeBack, setWelcomeBack] = useState<{
+    lastBill: number;
+    lastMonth: string;
+  } | null>(null);
+
+  // Welcome-back detection
+  useEffect(() => {
+    try {
+      const history = JSON.parse(
+        localStorage.getItem('bill-history') || '[]'
+      );
+      if (history.length > 0) {
+        const last = history[0];
+        setWelcomeBack({
+          lastBill: last.current.total,
+          lastMonth: new Date(last.savedAt).toLocaleDateString('en-US', {
+            month: 'long',
+            year: 'numeric',
+          }),
+        });
+
+        // Pre-fill previous bill with last month's current bill
+        setPreviousTotal(String(last.current.total));
+        setPreviousKwh(String(last.current.kwh));
+        setPreviousDays(String(last.current.billingDays || 30));
+        setState(last.state || 'CA');
+      }
+    } catch {}
+  }, []);
 
   const canSubmit =
     !!currentTotal &&
@@ -53,16 +84,18 @@ export default function Home() {
       current: {
         total: parseFloat(currentTotal),
         kwh: parseFloat(currentKwh),
+        billingDays: parseInt(currentDays) || 30,
       },
       previous: {
         total: parseFloat(previousTotal),
         kwh: parseFloat(previousKwh),
+        billingDays: parseInt(previousDays) || 30,
       },
       applianceIds: selected,
       savedAt: new Date().toISOString(),
     };
 
-    // Save to bill history
+    // Save to bill history (keep last 12 entries)
     try {
       const history = JSON.parse(
         localStorage.getItem('bill-history') || '[]'
@@ -107,7 +140,7 @@ export default function Home() {
 
         <p className="mt-6 text-lg text-slate-600 max-w-xl mx-auto">
           Enter your last two bills. Get a personalized breakdown of what
-          changed — rate hike vs. usage — in 10 seconds.
+          changed — rate hike vs. usage vs. billing days — in 10 seconds.
         </p>
 
         <div className="mt-8 flex items-center justify-center gap-6 text-sm text-slate-500">
@@ -116,6 +149,25 @@ export default function Home() {
           <span>✓ Private</span>
         </div>
       </section>
+
+      {/* WELCOME BACK BANNER */}
+      {welcomeBack && (
+        <section className="max-w-2xl mx-auto px-6 pb-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-start gap-3">
+            <div className="text-2xl">👋</div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-blue-900">
+                Welcome back — last saved {welcomeBack.lastMonth}
+              </p>
+              <p className="text-xs text-slate-600 mt-1">
+                Your last bill was ${welcomeBack.lastBill}. We&apos;ve
+                pre-filled it as the comparison below. Just add this
+                month&apos;s numbers.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* THE TOOL */}
       <section className="max-w-2xl mx-auto px-6 pb-16">
@@ -143,7 +195,7 @@ export default function Home() {
             <h2 className="font-semibold text-slate-900 mb-3">
               This month&apos;s bill
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">
                   Bill total ($)
@@ -168,6 +220,18 @@ export default function Home() {
                   className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">
+                  Days
+                </label>
+                <input
+                  type="number"
+                  value={currentDays}
+                  onChange={(e) => setCurrentDays(e.target.value)}
+                  placeholder="30"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
             </div>
           </div>
 
@@ -176,7 +240,7 @@ export default function Home() {
             <h2 className="font-semibold text-slate-900 mb-3">
               Same month last year
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">
                   Bill total ($)
@@ -198,6 +262,18 @@ export default function Home() {
                   value={previousKwh}
                   onChange={(e) => setPreviousKwh(e.target.value)}
                   placeholder="850"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">
+                  Days
+                </label>
+                <input
+                  type="number"
+                  value={previousDays}
+                  onChange={(e) => setPreviousDays(e.target.value)}
+                  placeholder="30"
                   className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -252,7 +328,7 @@ export default function Home() {
 
           {!canSubmit && !loading && (
             <p className="text-xs text-slate-400 text-center">
-              Fill in all four fields to continue
+              Fill in bill totals and usage to continue
             </p>
           )}
         </div>
